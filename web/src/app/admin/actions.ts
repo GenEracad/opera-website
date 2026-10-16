@@ -26,13 +26,20 @@ import {
 export type FormState = { error?: string };
 
 const MAX_LOGO_BYTES = 10 * 1024 * 1024;
+const UPLOAD_ERROR = "Não foi possível guardar a imagem. Tente novamente ou use uma imagem mais pequena.";
 
 async function saveUploadedImage(file: File): Promise<string> {
   const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
   const filename = `${crypto.randomUUID()}.${ext}`;
   const buffer = Buffer.from(await file.arrayBuffer());
-  const blob = await put(`uploads/${filename}`, buffer, { access: "public" });
-  return blob.url;
+  try {
+    const blob = await put(`uploads/${filename}`, buffer, { access: "public" });
+    return blob.url;
+  } catch (err) {
+    // Shows up in the Worker's logs (Cloudflare dashboard → Observability).
+    console.error(`Blob upload failed for ${file.name} (${file.size} bytes):`, err);
+    throw err;
+  }
 }
 
 /** Stores the two logo variants already processed in the browser
@@ -168,7 +175,12 @@ export async function updateProject(
   const keptImages = target.images.filter((img) => !removeImages.has(img));
 
   const newFiles = formData.getAll("images").filter((f): f is File => f instanceof File && f.size > 0);
-  const newImagePaths = await saveUploadedImages(newFiles);
+  let newImagePaths: string[];
+  try {
+    newImagePaths = await saveUploadedImages(newFiles);
+  } catch {
+    return { error: UPLOAD_ERROR };
+  }
 
   const images = [...keptImages, ...newImagePaths];
   if (images.length === 0) {
@@ -205,7 +217,12 @@ export async function createProject(_prevState: FormState, formData: FormData): 
     return { error: "É necessário escolher pelo menos uma imagem." };
   }
 
-  const images = await saveUploadedImages(files);
+  let images: string[];
+  try {
+    images = await saveUploadedImages(files);
+  } catch {
+    return { error: UPLOAD_ERROR };
+  }
   const id = await uniqueId(name, location);
   const requestedCount = Number(formData.get("featuredPhotoCount") ?? 1);
   const sortOrder = await nextProjectSortOrder();
@@ -373,7 +390,12 @@ export async function uploadAboutPhoto(
     return { error: "Escolha um ficheiro de imagem." };
   }
 
-  const url = await saveUploadedImage(file);
+  let url: string;
+  try {
+    url = await saveUploadedImage(file);
+  } catch {
+    return { error: UPLOAD_ERROR };
+  }
   const current = await getSiteContent();
   await saveSiteContent({ ...current, aboutPhotoUrl: url });
   revalidatePublicPages();
@@ -399,7 +421,12 @@ export async function addAwardImages(
     return { error: "Escolha pelo menos um ficheiro de imagem." };
   }
 
-  const newImages = await saveUploadedImages(files);
+  let newImages: string[];
+  try {
+    newImages = await saveUploadedImages(files);
+  } catch {
+    return { error: UPLOAD_ERROR };
+  }
   const current = await getSiteContent();
   await saveSiteContent({ ...current, awardImages: [...current.awardImages, ...newImages] });
   revalidatePublicPages();
@@ -461,7 +488,12 @@ export async function createTeamMember(
     return { error: "É necessário escolher uma fotografia." };
   }
 
-  const photo = await saveUploadedImage(file);
+  let photo: string;
+  try {
+    photo = await saveUploadedImage(file);
+  } catch {
+    return { error: UPLOAD_ERROR };
+  }
   const id = await uniqueTeamId(name);
   const sortOrder = await nextTeamSortOrder();
 
@@ -495,7 +527,11 @@ export async function updateTeamMember(
 
   const file = formData.get("photo");
   if (file instanceof File && file.size > 0) {
-    target.photo = await saveUploadedImage(file);
+    try {
+      target.photo = await saveUploadedImage(file);
+    } catch {
+      return { error: UPLOAD_ERROR };
+    }
   }
 
   await saveTeamMember(target);
