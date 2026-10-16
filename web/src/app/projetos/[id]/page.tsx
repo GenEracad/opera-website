@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 
 import { AnimatedLink } from "@/components/animated-link";
 import { ProjectGallery } from "@/components/project-gallery";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { categoryLabel } from "@/lib/categories";
-import { getProject, getProjects } from "@/lib/content-store";
+import { getProject, getProjectRedirect, getProjects } from "@/lib/content-store";
 import { t, type Locale } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
@@ -35,11 +35,16 @@ export async function ProjectPage({
   locale?: Locale;
 }) {
   const { id } = await params;
+  const prefix = locale === "pt" ? "" : "/en";
   const project = await getProject(id);
-  if (!project) notFound();
+  if (!project) {
+    // Renamed projects get a new slug; send old links to the current one.
+    const newId = await getProjectRedirect(id);
+    if (newId) permanentRedirect(`${prefix}/projetos/${newId}`);
+    notFound();
+  }
 
   const ui = t(locale);
-  const prefix = locale === "pt" ? "" : "/en";
   const name = locale === "pt" ? project.name : project.nameEn || project.name;
   const description = locale === "pt" ? project.description : project.descriptionEn || project.description;
 

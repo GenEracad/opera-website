@@ -38,3 +38,9 @@ ALTER TABLE team ADD COLUMN IF NOT EXISTS description_en text NOT NULL DEFAULT '
 ALTER TABLE team ADD COLUMN IF NOT EXISTS sort_order integer NOT NULL DEFAULT 0;
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS name_en text NOT NULL DEFAULT '';
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS sort_order integer NOT NULL DEFAULT 0;
+
+-- Old project URL slugs → current ones, so renamed projects keep their old links.
+CREATE TABLE IF NOT EXISTS project_redirects (
+  old_id text PRIMARY KEY,
+  new_id text NOT NULL
+);

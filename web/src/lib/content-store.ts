@@ -145,16 +145,41 @@ export function slugify(input: string): string {
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
     .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "")
-    .slice(0, 60);
+    .slice(0, 60)
+    .replace(/(^-|-$)/g, "");
 }
 
-export async function uniqueId(name: string, location: string): Promise<string> {
-  const base = slugify(`${name}-${location}`) || "projeto";
+/** The project's URL slug, derived from its (Portuguese) name. Pass the
+ * project's current id when renaming so it doesn't collide with itself. */
+export async function uniqueId(name: string, currentId?: string): Promise<string> {
+  const base = slugify(name) || "projeto";
   const projects = await getProjects();
-  const existingIds = new Set(projects.map((p) => p.id));
+  const existingIds = new Set(projects.map((p) => p.id).filter((id) => id !== currentId));
   if (!existingIds.has(base)) return base;
   let i = 2;
   while (existingIds.has(`${base}-${i}`)) i++;
   return `${base}-${i}`;
+}
+
+/** Changes a project's id (its URL slug) and keeps the old URL working by
+ * recording a redirect, re-pointing any older redirects at the new id. */
+export async function renameProject(oldId: string, newId: string): Promise<void> {
+  if (oldId === newId) return;
+  const sql = getSql();
+  await sql.transaction([
+    sql`UPDATE projects SET id = ${newId} WHERE id = ${oldId}`,
+    sql`DELETE FROM project_redirects WHERE old_id = ${newId}`,
+    sql`UPDATE project_redirects SET new_id = ${newId} WHERE new_id = ${oldId}`,
+    sql`
+      INSERT INTO project_redirects (old_id, new_id) VALUES (${oldId}, ${newId})
+      ON CONFLICT (old_id) DO UPDATE SET new_id = EXCLUDED.new_id
+    `,
+  ]);
+}
+
+/** Where an old project URL slug now lives, if it was renamed. */
+export async function getProjectRedirect(oldId: string): Promise<string | undefined> {
+  const sql = getSql();
+  const rows = (await sql`SELECT new_id FROM project_redirects WHERE old_id = ${oldId}`) as { new_id: string }[];
+  return rows[0]?.new_id;
 }

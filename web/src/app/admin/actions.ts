@@ -9,6 +9,7 @@ import {
   saveProject,
   deleteProjectRow,
   uniqueId,
+  renameProject,
   nextProjectSortOrder,
   moveProject,
 } from "@/lib/content-store";
@@ -192,6 +193,8 @@ export async function updateProject(
   target.featuredPhotoCount = Math.min(Math.max(1, requestedCount || 1), images.length, 3);
 
   await saveProject(target);
+  // Keep the URL slug in step with the name; the old URL redirects.
+  await renameProject(target.id, await uniqueId(target.name, target.id));
   revalidatePublicPages();
   redirect("/admin");
 }
@@ -223,7 +226,7 @@ export async function createProject(_prevState: FormState, formData: FormData): 
   } catch {
     return { error: UPLOAD_ERROR };
   }
-  const id = await uniqueId(name, location);
+  const id = await uniqueId(name);
   const requestedCount = Number(formData.get("featuredPhotoCount") ?? 1);
   const sortOrder = await nextProjectSortOrder();
 
