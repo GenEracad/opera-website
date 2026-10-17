@@ -1,6 +1,6 @@
 "use server";
 
-import { put } from "@vercel/blob";
+import { putPublicBlob } from "@/lib/blob";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -32,10 +32,8 @@ const UPLOAD_ERROR = "Não foi possível guardar a imagem. Tente novamente ou us
 async function saveUploadedImage(file: File): Promise<string> {
   const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
   const filename = `${crypto.randomUUID()}.${ext}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
   try {
-    const blob = await put(`uploads/${filename}`, buffer, { access: "public" });
-    return blob.url;
+    return await putPublicBlob(`uploads/${filename}`, await file.arrayBuffer(), file.type || undefined);
   } catch (err) {
     // Shows up in the Worker's logs (Cloudflare dashboard → Observability).
     console.error(`Blob upload failed for ${file.name} (${file.size} bytes):`, err);
@@ -47,11 +45,11 @@ async function saveUploadedImage(file: File): Promise<string> {
  * (src/lib/process-logo.ts). */
 async function saveLogoVariants(dark: File, light: File): Promise<{ dark: string; light: string }> {
   const id = crypto.randomUUID();
-  const [darkBlob, lightBlob] = await Promise.all([
-    put(`uploads/${id}-dark.png`, Buffer.from(await dark.arrayBuffer()), { access: "public" }),
-    put(`uploads/${id}-light.png`, Buffer.from(await light.arrayBuffer()), { access: "public" }),
+  const [darkUrl, lightUrl] = await Promise.all([
+    putPublicBlob(`uploads/${id}-dark.png`, await dark.arrayBuffer(), "image/png"),
+    putPublicBlob(`uploads/${id}-light.png`, await light.arrayBuffer(), "image/png"),
   ]);
-  return { dark: darkBlob.url, light: lightBlob.url };
+  return { dark: darkUrl, light: lightUrl };
 }
 
 async function saveUploadedImages(files: File[]): Promise<string[]> {

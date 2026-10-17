@@ -167,6 +167,7 @@ export async function renameProject(oldId: string, newId: string): Promise<void>
   if (oldId === newId) return;
   const sql = getSql();
   await sql.transaction([
+    sql`CREATE TABLE IF NOT EXISTS project_redirects (old_id text PRIMARY KEY, new_id text NOT NULL)`,
     sql`UPDATE projects SET id = ${newId} WHERE id = ${oldId}`,
     sql`DELETE FROM project_redirects WHERE old_id = ${newId}`,
     sql`UPDATE project_redirects SET new_id = ${newId} WHERE new_id = ${oldId}`,
@@ -180,6 +181,11 @@ export async function renameProject(oldId: string, newId: string): Promise<void>
 /** Where an old project URL slug now lives, if it was renamed. */
 export async function getProjectRedirect(oldId: string): Promise<string | undefined> {
   const sql = getSql();
-  const rows = (await sql`SELECT new_id FROM project_redirects WHERE old_id = ${oldId}`) as { new_id: string }[];
-  return rows[0]?.new_id;
+  try {
+    const rows = (await sql`SELECT new_id FROM project_redirects WHERE old_id = ${oldId}`) as { new_id: string }[];
+    return rows[0]?.new_id;
+  } catch {
+    // The table only exists once a project has been renamed.
+    return undefined;
+  }
 }
