@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useActionState, useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 
 import { removeLogo, uploadLogo } from "@/app/admin/actions";
-import type { FormState } from "@/app/admin/actions";
+import { useUploadingAction } from "@/lib/browser-upload";
 import { processLogo } from "@/lib/process-logo";
 
 // Next.js only serves SVGs through <Image> when optimization is skipped.
@@ -19,11 +19,11 @@ export function LogoUpload({
   currentUrlDark: string;
   currentUrlLight: string;
 }) {
-  const [state, formAction, pending] = useActionState<FormState, FormData>(uploadLogo, {});
+  const { state, submit, uploading, pending: saving, error } = useUploadingAction(uploadLogo, {});
+  const pending = uploading || saving;
   const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [isRemoving, startRemoving] = useTransition();
-  const [, startUploading] = useTransition();
   const [processing, setProcessing] = useState(false);
   const [processError, setProcessError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -39,7 +39,7 @@ export function LogoUpload({
   }, [state]);
 
   // Background removal and the light/dark variants are made here in the
-  // browser; the server action only stores the two resulting PNGs.
+  // browser; both PNGs are uploaded from here and the action stores their URLs.
   async function submitFile(file: File) {
     setPreview(URL.createObjectURL(file));
     setProcessError(null);
@@ -57,7 +57,7 @@ export function LogoUpload({
     const formData = new FormData();
     formData.append("logoDark", variants.dark, "logo-dark.png");
     formData.append("logoLight", variants.light, "logo-light.png");
-    startUploading(() => formAction(formData));
+    await submit(formData);
   }
 
   function handleDrop(e: React.DragEvent<HTMLDivElement>) {
@@ -113,8 +113,8 @@ export function LogoUpload({
         </div>
       </div>
 
-      {processError || state.error ? (
-        <p className="mt-2 text-sm text-red-400">{processError ?? state.error}</p>
+      {processError || error ? (
+        <p className="mt-2 text-sm text-red-400">{processError ?? error}</p>
       ) : null}
 
       {!pending && !processing && !preview && (currentUrlDark || currentUrlLight) ? (

@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useActionState } from "react";
 
 import type { FormState } from "@/app/admin/actions";
+import { useUploadingAction } from "@/lib/browser-upload";
 import type { TeamMember } from "@/lib/team-store";
 
 const inputClass =
@@ -19,10 +19,10 @@ export function TeamMemberForm({
   member?: TeamMember;
   submitLabel: string;
 }) {
-  const [state, formAction, pending] = useActionState(action, {});
+  const { submit, uploading, pending, error } = useUploadingAction(action, {});
 
   return (
-    <form action={formAction} className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+    <form action={submit} className="grid grid-cols-1 gap-8 sm:grid-cols-2">
       <div>
         <label className={labelClass} htmlFor="name">
           Nome
@@ -90,15 +90,15 @@ export function TeamMemberForm({
         />
       </div>
 
-      {state.error ? <p className="sm:col-span-2 text-sm text-red-400">{state.error}</p> : null}
+      {error ? <p className="sm:col-span-2 text-sm text-red-400">{error}</p> : null}
 
       <div className="sm:col-span-2">
         <button
           type="submit"
-          disabled={pending}
+          disabled={pending || uploading}
           className="rounded-full border border-border px-6 py-3 font-mono text-xs tracking-widest text-foreground transition-colors hover:border-foreground/40 disabled:opacity-50"
         >
-          {pending ? "A guardar..." : submitLabel}
+          {uploading ? "A enviar fotografia..." : pending ? "A guardar..." : submitLabel}
         </button>
       </div>
     </form>

@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 
 import type { FormState } from "@/app/admin/actions";
+import { useUploadingAction } from "@/lib/browser-upload";
 import type { Project } from "@/lib/content-store";
 
 const inputClass =
@@ -27,13 +28,13 @@ export function ProjectForm({
   project?: Project;
   submitLabel: string;
 }) {
-  const [state, formAction, pending] = useActionState(action, {});
+  const { submit, uploading, pending, error } = useUploadingAction(action, {});
   const [imagesToRemove, setImagesToRemove] = useState<Set<string>>(new Set());
 
   const remainingCount = (project?.images.length ?? 0) - imagesToRemove.size;
 
   return (
-    <form action={formAction} className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+    <form action={submit} className="grid grid-cols-1 gap-8 sm:grid-cols-2">
       <div>
         <label className={labelClass} htmlFor="name">
           Nome
@@ -245,15 +246,15 @@ export function ProjectForm({
         ) : null}
       </div>
 
-      {state.error ? <p className="sm:col-span-2 text-sm text-red-400">{state.error}</p> : null}
+      {error ? <p className="sm:col-span-2 text-sm text-red-400">{error}</p> : null}
 
       <div className="sm:col-span-2">
         <button
           type="submit"
-          disabled={pending}
+          disabled={pending || uploading}
           className="rounded-full border border-border px-6 py-3 font-mono text-xs tracking-widest text-foreground transition-colors hover:border-foreground/40 disabled:opacity-50"
         >
-          {pending ? "A guardar..." : submitLabel}
+          {uploading ? "A enviar imagens..." : pending ? "A guardar..." : submitLabel}
         </button>
       </div>
     </form>

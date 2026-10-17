@@ -1,15 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { useActionState, useRef, useTransition } from "react";
+import { useRef, useTransition } from "react";
 
 import { addAwardImages, removeAwardImage } from "@/app/admin/actions";
-import type { FormState } from "@/app/admin/actions";
+import { useUploadingAction } from "@/lib/browser-upload";
 
 const labelClass = "mb-2 block font-mono text-xs tracking-widest text-muted-foreground";
 
 export function AwardImagesUpload({ images }: { images: string[] }) {
-  const [state, formAction, pending] = useActionState<FormState, FormData>(addAwardImages, {});
+  const { submit, uploading, pending, error } = useUploadingAction(addAwardImages, {});
   const [isRemoving, startRemoving] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -35,7 +35,7 @@ export function AwardImagesUpload({ images }: { images: string[] }) {
         </div>
       ) : null}
 
-      <form ref={formRef} action={formAction} className="flex items-center gap-4">
+      <form ref={formRef} action={submit} className="flex items-center gap-4">
         <input
           type="file"
           name="images"
@@ -44,10 +44,10 @@ export function AwardImagesUpload({ images }: { images: string[] }) {
           onChange={() => formRef.current?.requestSubmit()}
           className="block text-sm text-foreground file:mr-4 file:rounded-full file:border file:border-border file:bg-transparent file:px-4 file:py-2 file:font-mono file:text-xs file:tracking-widest file:text-foreground"
         />
-        {pending ? <span className="font-mono text-xs text-muted-foreground">A enviar...</span> : null}
+        {pending || uploading ? <span className="font-mono text-xs text-muted-foreground">A enviar...</span> : null}
       </form>
 
-      {state.error ? <p className="mt-2 text-sm text-red-400">{state.error}</p> : null}
+      {error ? <p className="mt-2 text-sm text-red-400">{error}</p> : null}
     </div>
   );
 }

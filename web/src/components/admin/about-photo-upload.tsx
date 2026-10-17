@@ -1,15 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { useActionState, useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 
 import { removeAboutPhoto, uploadAboutPhoto } from "@/app/admin/actions";
-import type { FormState } from "@/app/admin/actions";
+import { useUploadingAction } from "@/lib/browser-upload";
 
 const labelClass = "mb-2 block font-mono text-xs tracking-widest text-muted-foreground";
 
 export function AboutPhotoUpload({ currentUrl }: { currentUrl: string }) {
-  const [state, formAction, pending] = useActionState<FormState, FormData>(uploadAboutPhoto, {});
+  const { state, submit, uploading, pending, error } = useUploadingAction(uploadAboutPhoto, {});
   const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [isRemoving, startRemoving] = useTransition();
@@ -48,7 +48,7 @@ export function AboutPhotoUpload({ currentUrl }: { currentUrl: string }) {
   return (
     <div>
       <label className={labelClass}>Foto de grupo (página Sobre)</label>
-      <form ref={formRef} action={formAction}>
+      <form ref={formRef} action={submit}>
         <input
           ref={inputRef}
           type="file"
@@ -78,7 +78,7 @@ export function AboutPhotoUpload({ currentUrl }: { currentUrl: string }) {
             </div>
           ) : null}
           <p className="font-mono text-xs tracking-widest text-muted-foreground">
-            {pending
+            {pending || uploading
               ? "A enviar..."
               : displayUrl
                 ? "Arraste para substituir ou clique para escolher"
@@ -87,7 +87,7 @@ export function AboutPhotoUpload({ currentUrl }: { currentUrl: string }) {
         </div>
       </form>
 
-      {state.error ? <p className="mt-2 text-sm text-red-400">{state.error}</p> : null}
+      {error ? <p className="mt-2 text-sm text-red-400">{error}</p> : null}
 
       {currentUrl ? (
         <button
