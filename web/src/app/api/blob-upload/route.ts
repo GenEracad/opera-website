@@ -27,7 +27,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         if (!pathname.startsWith("uploads/")) throw new Error("Invalid upload path.");
         return {
           allowedContentTypes: ["image/*"],
-          maximumSizeInBytes: 25 * 1024 * 1024,
+          maximumSizeInBytes: 30 * 1024 * 1024,
           addRandomSuffix: false,
         };
       },

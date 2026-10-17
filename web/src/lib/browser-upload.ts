@@ -5,7 +5,9 @@ import { startTransition, useActionState, useState } from "react";
 
 export type UploadFormState = { error?: string };
 
+const MAX_UPLOAD_BYTES = 30 * 1024 * 1024; // keep in sync with /api/blob-upload
 const UPLOAD_ERROR = "Não foi possível enviar a imagem. Tente novamente.";
+const TOO_LARGE_ERROR = "Cada imagem pode ter no máximo 30 MB.";
 
 /** Uploads one image from the browser straight to Vercel Blob and returns
  * its public URL. The token comes from /api/blob-upload (admins only). */
@@ -47,6 +49,11 @@ export function useUploadingAction(
 
   async function submit(formData: FormData) {
     setUploadError(null);
+    const tooLarge = [...formData.values()].some((v) => v instanceof File && v.size > MAX_UPLOAD_BYTES);
+    if (tooLarge) {
+      setUploadError(TOO_LARGE_ERROR);
+      return;
+    }
     setUploading(true);
     try {
       await uploadFilesInFormData(formData);
