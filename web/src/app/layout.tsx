@@ -7,7 +7,7 @@ import { ScrollProgress } from "@/components/scroll-progress";
 const jost = Jost({
   variable: "--font-jost",
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["300", "400", "500"],
 });
 
 export const metadata: Metadata = {

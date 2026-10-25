@@ -58,7 +58,7 @@ export async function ProjectPage({
   return (
     <>
       <SiteHeader locale={locale} pathSuffix={`/projetos/${project.id}`} />
-      <main className="bg-ral-9010">
+      <main className="bg-paper">
         <div className="px-6 pt-28 md:px-12 md:pt-48">
           <AnimatedLink
             href={`${prefix}/projetos`}
@@ -82,7 +82,7 @@ export async function ProjectPage({
         ) : null}
 
         <div className="px-6 pb-14 pt-16 md:px-12 md:pb-20 md:pt-24">
-          <h1 className="max-w-4xl text-[1.9rem] font-medium tracking-tight text-[#3a3733] md:text-6xl">
+          <h1 className="max-w-4xl text-[1.6rem] font-medium tracking-tight text-[#3a3733] md:text-5xl">
             {name}
           </h1>
 
@@ -178,7 +178,7 @@ export async function ProjectPage({
             <div className="font-mono text-xs tracking-widest text-[#3a3733]/60">
               {ui.nextProject}
             </div>
-            <h2 className="mt-4 text-2xl font-medium tracking-tight text-[#3a3733] md:text-4xl">
+            <h2 className="mt-4 text-xl font-medium tracking-tight text-[#3a3733] md:text-3xl">
               {locale === "pt" ? nextProject.name : nextProject.nameEn || nextProject.name}
             </h2>
             <Link

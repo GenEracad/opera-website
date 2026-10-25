@@ -106,7 +106,7 @@ export function ProjectsStack({ projects, locale = "pt" }: { projects: Project[]
   }, []);
 
   return (
-    <div className="bg-ral-9010 px-4 py-20 md:px-6 md:py-28">
+    <div className="bg-paper px-4 py-20 md:px-6 md:py-28">
       <div ref={root} className="flex flex-col gap-24 md:gap-40">
         {projects.map((project, projectIndex) => {
           const count = Math.min(project.featuredPhotoCount || 1, project.images.length || 1, 3);
@@ -123,7 +123,7 @@ export function ProjectsStack({ projects, locale = "pt" }: { projects: Project[]
                       .filter(Boolean)
                       .join(" · ")}
                   </div>
-                  <h3 className="text-xl font-medium tracking-tight text-[#3a3733] md:text-3xl">
+                  <h3 className="text-lg font-medium tracking-tight text-[#3a3733] md:text-2xl">
                     {name}
                   </h3>
                 </div>

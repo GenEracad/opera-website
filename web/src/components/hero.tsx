@@ -43,7 +43,7 @@ export function Hero({
         <div className="mb-2 font-mono text-xs tracking-widest text-foreground/70">
           {[categoryLabel(project.category, locale), project.location].filter(Boolean).join(" · ")}
         </div>
-        <h1 className="text-2xl font-medium tracking-tight text-foreground md:text-4xl">{name}</h1>
+        <h1 className="text-xl font-medium tracking-tight text-foreground md:text-3xl">{name}</h1>
       </div>
 
       <p className="pointer-events-none absolute inset-x-0 bottom-10 text-center font-mono text-xs tracking-widest text-foreground/60">

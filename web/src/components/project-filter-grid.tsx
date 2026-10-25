@@ -84,7 +84,7 @@ export function ProjectFilterGrid({ projects, locale = "pt" }: { projects: Proje
                 <div className="mb-1 font-mono text-[11px] tracking-widest text-foreground/70">
                   {[categoryLabel(project.category, locale), project.location].filter(Boolean).join(" · ")}
                 </div>
-                <h3 className="text-lg font-medium tracking-tight text-foreground">{name}</h3>
+                <h3 className="text-base font-medium tracking-tight text-foreground">{name}</h3>
               </div>
             </Link>
           );
