@@ -25,14 +25,6 @@ const mobileWidthClasses = {
   right: "w-[70vw]",
 } as const;
 
-/** Rows of square photos take 88% of the width on desktop, pushed to the
- * same left/center/right side as the row's stagger. */
-const squareRowClasses = {
-  left: "md:mr-auto",
-  center: "md:mx-auto",
-  right: "md:ml-auto",
-} as const;
-
 type Align = keyof typeof justifyClasses;
 
 const ALIGN_ORDER: Align[] = ["left", "center", "right"];
@@ -137,7 +129,8 @@ export function ProjectsStack({ projects, locale = "pt" }: { projects: Project[]
               </div>
               <div
                 className={`flex flex-nowrap gap-3 md:gap-4 ${justifyClasses[align]} ${
-                  shown.length > 1 ? `md:w-[88%] ${squareRowClasses[align]}` : ""
+                  // Rows of square photos: 88% of the width on desktop, centred.
+                  shown.length > 1 ? "md:mx-auto md:w-[88%]" : ""
                 }`}
               >
                 {shown.map((image, i) => (
