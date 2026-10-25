@@ -25,6 +25,14 @@ const mobileWidthClasses = {
   right: "w-[70vw]",
 } as const;
 
+/** Rows of square photos take 88% of the width on desktop, pushed to the
+ * same left/center/right side as the row's stagger. */
+const squareRowClasses = {
+  left: "md:mr-auto",
+  center: "md:mx-auto",
+  right: "md:ml-auto",
+} as const;
+
 type Align = keyof typeof justifyClasses;
 
 const ALIGN_ORDER: Align[] = ["left", "center", "right"];
@@ -99,7 +107,7 @@ export function ProjectsStack({ projects, locale = "pt" }: { projects: Project[]
 
   return (
     <div className="bg-ral-9010 px-4 py-20 md:px-6 md:py-28">
-      <div ref={root} className="flex flex-col gap-14 md:gap-20">
+      <div ref={root} className="flex flex-col gap-24 md:gap-40">
         {projects.map((project, projectIndex) => {
           const count = Math.min(project.featuredPhotoCount || 1, project.images.length || 1, 3);
           const shown = project.images.slice(0, count);
@@ -127,15 +135,19 @@ export function ProjectsStack({ projects, locale = "pt" }: { projects: Project[]
                   {ui.viewProject}
                 </AnimatedLink>
               </div>
-              <div className={`flex flex-nowrap gap-3 md:gap-4 ${justifyClasses[align]}`}>
+              <div
+                className={`flex flex-nowrap gap-3 md:gap-4 ${justifyClasses[align]} ${
+                  shown.length > 1 ? `md:w-[88%] ${squareRowClasses[align]}` : ""
+                }`}
+              >
                 {shown.map((image, i) => (
                   <Link
                     key={image}
                     href={`${prefix}/projetos/${project.id}`}
                     aria-label={`${ui.viewProject}: ${name}`}
-                    // Several photos are squares sharing the full row width, edge to
-                    // edge; a lone photo keeps the left/center/right stagger. No max
-                    // width, so they keep growing on wider screens.
+                    // Several photos are squares sharing the row's width; a lone
+                    // photo keeps the left/center/right stagger. No max width, so
+                    // they keep growing on wider screens.
                     className={`project-image-wrap group/photo relative block min-w-0 overflow-hidden ${
                       shown.length > 1
                         ? "aspect-square flex-1"
