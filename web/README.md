@@ -127,15 +127,15 @@ Re-running the command with the same username updates its password (upsert). Log
 
 ### Logo
 
-The OPERA logo lives in `public/brand/` as outlined SVGs with a transparent background (white for the header, black for the footer). Save it as the site logo in the database:
+The OPERA STUDIO logo (OPE / RA / STU / DIO, Futura PT Book and Light) lives in `public/brand/` as outlined SVGs with a transparent background (white for the header, black for the footer). Save it as the site logo in the database:
 
 ```bash
 npx dotenv -e .env.local -- npx tsx scripts/set-logo.ts
 ```
 
-To rebuild the SVGs from another font file (e.g. a licensed Futura BT), run `scripts/make-logo.py` (needs `python3 -m pip install fonttools`):
+To rebuild the SVGs, run `scripts/make-logo.mjs` with the Book and Light font files (they are only read locally; the SVGs contain outlines, never the font):
 
 ```bash
-python3 scripts/make-logo.py <font.ttf> 300 public/brand/opera-logo.svg "#000"
-python3 scripts/make-logo.py <font.ttf> 300 public/brand/opera-logo-white.svg "#fff"
+node scripts/make-logo.mjs <book.ttf> <light.ttf> public/brand/opera-logo.svg "#000"
+node scripts/make-logo.mjs <book.ttf> <light.ttf> public/brand/opera-logo-white.svg "#fff"
 ```
