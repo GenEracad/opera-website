@@ -13,9 +13,9 @@ type Framing = { face?: [x: number, y: number]; zoom?: number; brightness?: numb
 
 const FRAMING: Record<string, Framing> = {
   // Eduardo Fontes
-  "433d8c8f-1c9c-4fc9-9c8a-1a31b9be298d.png": { face: [51, 20], zoom: 1.9 },
+  "433d8c8f-1c9c-4fc9-9c8a-1a31b9be298d.png": { face: [51, 20], zoom: 1.55 },
   // Sofia Fontes
-  "d10776b1-05da-47ff-8ecb-e988dd272535.png": { face: [48, 40], zoom: 1.95, brightness: 1.25 },
+  "d10776b1-05da-47ff-8ecb-e988dd272535.png": { face: [48, 40], zoom: 1.6, brightness: 1.25 },
   // Alexandra Reis
   "6046cdb0-2445-4964-a668-abd4ca99e309.jpg": { face: [46, 38], zoom: 2.2 },
   // Sara Marçal
