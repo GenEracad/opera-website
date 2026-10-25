@@ -34,7 +34,7 @@ export async function ProjetosPage({ locale = "pt" }: { locale?: Locale } = {}) 
   return (
     <>
       <SiteHeader locale={locale} pathSuffix="/projetos" />
-      <main className="bg-[#f2ece0] px-6 pb-16 pt-24 md:px-12 md:pb-24 md:pt-40">
+      <main className="bg-ral-9010 px-6 pb-16 pt-24 md:px-12 md:pb-24 md:pt-40">
         <div className="mb-16 max-w-2xl">
           <p className="mb-4 font-mono text-xs tracking-widest text-[#3a3733]/60">{ui.projects}</p>
           <h1 className="text-[1.75rem] font-medium tracking-tight text-[#3a3733] md:text-5xl">

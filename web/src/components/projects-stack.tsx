@@ -97,7 +97,7 @@ export function ProjectsStack({ projects, locale = "pt" }: { projects: Project[]
   }, []);
 
   return (
-    <div className="bg-[#f2ece0] px-4 py-20 md:px-6 md:py-28">
+    <div className="bg-ral-9010 px-4 py-20 md:px-6 md:py-28">
       <div ref={root} className="flex flex-col gap-14 md:gap-20">
         {projects.map((project, projectIndex) => {
           const count = Math.min(project.featuredPhotoCount || 1, project.images.length || 1, 3);
@@ -130,11 +130,13 @@ export function ProjectsStack({ projects, locale = "pt" }: { projects: Project[]
                 {shown.map((image, i) => (
                   <div
                     key={image}
-                    // Several photos share the full row width, edge to edge; a lone
-                    // photo keeps the left/center/right stagger. No max width, so
-                    // they keep growing on wider screens.
-                    className={`project-image-wrap relative h-[38vh] min-w-0 overflow-hidden md:h-[60vh] 2xl:h-[66vh] ${
-                      shown.length > 1 ? "flex-1" : `${mobileWidthClasses[align]} sm:w-[70vw] md:w-[62vw]`
+                    // Several photos are squares sharing the full row width, edge to
+                    // edge; a lone photo keeps the left/center/right stagger. No max
+                    // width, so they keep growing on wider screens.
+                    className={`project-image-wrap relative min-w-0 overflow-hidden ${
+                      shown.length > 1
+                        ? "aspect-square flex-1"
+                        : `h-[38vh] ${mobileWidthClasses[align]} sm:w-[70vw] md:h-[60vh] md:w-[62vw] 2xl:h-[66vh]`
                     }`}
                   >
                     <Image

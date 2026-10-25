@@ -7,6 +7,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  /* RAL 9010 (pure white), sRGB approximation — the light section background. */
+  --color-ral-9010: #f1ece1;
   /* Jost stands in for Futura PT (the Gulbenkian look) until a Futura web
      licence exists; the whole site, labels included, uses one family. */
   --font-sans: var(--font-jost), "Century Gothic", sans-serif;
