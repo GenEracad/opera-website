@@ -13,6 +13,8 @@ export function MobileNav({
   localeToggle: { href: string; label: string };
 }) {
   const [open, setOpen] = useState(false);
+  // Dark bars over light sections; the open menu sits on a dark overlay.
+  const bar = open ? "bg-foreground" : "bg-foreground group-data-[theme=light]:bg-[#3a3733]";
 
   return (
     <div className="md:hidden">
@@ -23,10 +25,10 @@ export function MobileNav({
         className="relative z-10 flex h-9 w-9 flex-col items-center justify-center gap-1.5"
       >
         <span
-          className={`block h-px w-6 bg-foreground transition-transform ${open ? "translate-y-[3.5px] rotate-45" : ""}`}
+          className={`block h-px w-6 ${bar} transition-transform ${open ? "translate-y-[3.5px] rotate-45" : ""}`}
         />
         <span
-          className={`block h-px w-6 bg-foreground transition-transform ${open ? "-translate-y-[3.5px] -rotate-45" : ""}`}
+          className={`block h-px w-6 ${bar} transition-transform ${open ? "-translate-y-[3.5px] -rotate-45" : ""}`}
         />
       </button>
 
