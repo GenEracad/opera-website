@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { t, type Locale } from "@/lib/i18n";
 import { getSiteContent } from "@/lib/site-content";
+import { teamPhotoStyle } from "@/lib/team-photo-framing";
 import { getTeam } from "@/lib/team-store";
 
 export const metadata: Metadata = {
@@ -47,6 +48,7 @@ export async function EquipaPage({ locale = "pt" }: { locale?: Locale } = {}) {
                     fill
                     sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
                     className="object-cover grayscale"
+                    style={teamPhotoStyle(member.photo)}
                   />
                   {description ? (
                     <div className="pointer-events-none absolute inset-0 flex items-end bg-[#3a3733]/80 p-3 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
