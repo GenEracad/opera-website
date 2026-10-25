@@ -59,7 +59,7 @@ export async function ProjectPage({
     <>
       <SiteHeader locale={locale} pathSuffix={`/projetos/${project.id}`} />
       <main className="bg-ral-9010">
-        <div className="px-6 pt-20 md:px-12 md:pt-36">
+        <div className="px-6 pt-28 md:px-12 md:pt-48">
           <AnimatedLink
             href={`${prefix}/projetos`}
             className="font-mono text-xs tracking-widest text-[#3a3733]/70 hover:text-[#3a3733]"

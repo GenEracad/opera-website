@@ -29,7 +29,7 @@ export async function SobrePage({ locale = "pt" }: { locale?: Locale } = {}) {
   return (
     <>
       <SiteHeader locale={locale} pathSuffix="/sobre" />
-      <main className="px-6 pb-16 pt-24 md:px-12 md:pb-24 md:pt-40">
+      <main className="px-6 pb-16 pt-28 md:px-12 md:pb-24 md:pt-48">
         <div className="mb-16 max-w-2xl">
           <p className="mb-4 font-mono text-xs tracking-widest text-muted-foreground">{ui.about}</p>
           <h1 className="text-[1.75rem] font-medium tracking-tight text-foreground md:text-5xl">

@@ -32,7 +32,7 @@ export async function ContactoPage({ locale = "pt" }: { locale?: Locale } = {}) 
   return (
     <>
       <SiteHeader locale={locale} pathSuffix="/contacto" />
-      <main className="px-6 pb-16 pt-24 md:px-12 md:pb-24 md:pt-40">
+      <main className="px-6 pb-16 pt-28 md:px-12 md:pb-24 md:pt-48">
         <div className="mb-16 grid grid-cols-1 gap-12 md:grid-cols-[1fr_1.4fr] md:gap-20">
           <div>
             <p className="mb-4 font-mono text-xs tracking-widest text-muted-foreground">
