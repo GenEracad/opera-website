@@ -27,7 +27,13 @@ const COPY = {
 } as const;
 
 export async function ProjetosPage({ locale = "pt" }: { locale?: Locale } = {}) {
-  const projects = await getProjects();
+  // Featured projects first, in the homepage's order, then the rest in the
+  // admin's manual order.
+  const all = await getProjects();
+  const featured = all
+    .filter((p) => p.featured)
+    .sort((a, b) => (a.featuredOrder ?? 0) - (b.featuredOrder ?? 0));
+  const projects = [...featured, ...all.filter((p) => !p.featured)];
   const ui = t(locale);
   const copy = COPY[locale];
 
