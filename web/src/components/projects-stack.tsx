@@ -97,8 +97,8 @@ export function ProjectsStack({ projects, locale = "pt" }: { projects: Project[]
   }, []);
 
   return (
-    <div className="bg-[#f2ece0] px-6 py-20 md:px-12 md:py-28">
-      <div ref={root} className="mx-auto flex max-w-[1600px] flex-col gap-10">
+    <div className="bg-[#f2ece0] px-4 py-20 md:px-6 md:py-28">
+      <div ref={root} className="flex flex-col gap-14 md:gap-20">
         {projects.map((project, projectIndex) => {
           const count = Math.min(project.featuredPhotoCount || 1, project.images.length || 1, 3);
           const shown = project.images.slice(0, count);
@@ -126,17 +126,22 @@ export function ProjectsStack({ projects, locale = "pt" }: { projects: Project[]
                   {ui.viewProject}
                 </AnimatedLink>
               </div>
-              <div className={`flex flex-nowrap gap-6 ${justifyClasses[align]}`}>
+              <div className={`flex flex-nowrap gap-3 md:gap-4 ${justifyClasses[align]}`}>
                 {shown.map((image, i) => (
                   <div
                     key={image}
-                    className={`project-image-wrap relative h-[38vh] ${mobileWidthClasses[align]} min-w-0 max-w-[560px] overflow-hidden sm:w-[60vw] md:h-[52vh] md:w-[38vw]`}
+                    // Several photos share the full row width, edge to edge; a lone
+                    // photo keeps the left/center/right stagger. No max width, so
+                    // they keep growing on wider screens.
+                    className={`project-image-wrap relative h-[38vh] min-w-0 overflow-hidden md:h-[60vh] 2xl:h-[66vh] ${
+                      shown.length > 1 ? "flex-1" : `${mobileWidthClasses[align]} sm:w-[70vw] md:w-[62vw]`
+                    }`}
                   >
                     <Image
                       src={image}
                       alt={name}
                       fill
-                      sizes="(min-width: 768px) 45vw, 90vw"
+                      sizes={shown.length > 1 ? `(min-width: 768px) ${Math.round(100 / shown.length)}vw, 90vw` : "(min-width: 768px) 62vw, 90vw"}
                       priority={projectIndex === 0 && i === 0}
                       className="object-cover"
                     />
