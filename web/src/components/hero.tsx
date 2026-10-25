@@ -1,8 +1,9 @@
 import Image from "next/image";
+import Link from "next/link";
 
 import { categoryLabel } from "@/lib/categories";
 import type { Project } from "@/lib/content-store";
-import type { Locale } from "@/lib/i18n";
+import { t, type Locale } from "@/lib/i18n";
 
 export function Hero({
   project,
@@ -16,6 +17,7 @@ export function Hero({
   locale?: Locale;
 }) {
   const name = locale === "pt" ? project.name : project.nameEn || project.name;
+  const href = `${locale === "pt" ? "" : "/en"}/projetos/${project.id}`;
 
   return (
     <section className="relative flex min-h-[100dvh] flex-col justify-between overflow-hidden">
@@ -28,14 +30,16 @@ export function Hero({
         className="object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/10 to-background/90" />
+      {/* The whole photo opens the project; the text above lets clicks through. */}
+      <Link href={href} aria-label={`${t(locale).viewProject}: ${name}`} className="absolute inset-0" />
 
-      <div className="relative flex justify-end px-6 pt-20 md:px-12 md:pt-36">
+      <div className="pointer-events-none relative flex justify-end px-6 pt-20 md:px-12 md:pt-36">
         <p className="max-w-xs text-right text-sm leading-relaxed text-foreground/90 md:max-w-sm md:text-base">
           {about}
         </p>
       </div>
 
-      <div className="relative px-6 pb-10 md:px-12">
+      <div className="pointer-events-none relative px-6 pb-10 md:px-12">
         <div className="mb-2 font-mono text-xs tracking-widest text-foreground/70">
           {[categoryLabel(project.category, locale), project.location].filter(Boolean).join(" · ")}
         </div>

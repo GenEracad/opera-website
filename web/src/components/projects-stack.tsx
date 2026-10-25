@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useMemo, useRef } from "react";
 import { animate, createScope, type Scope } from "animejs";
 
@@ -128,12 +129,14 @@ export function ProjectsStack({ projects, locale = "pt" }: { projects: Project[]
               </div>
               <div className={`flex flex-nowrap gap-3 md:gap-4 ${justifyClasses[align]}`}>
                 {shown.map((image, i) => (
-                  <div
+                  <Link
                     key={image}
+                    href={`${prefix}/projetos/${project.id}`}
+                    aria-label={`${ui.viewProject}: ${name}`}
                     // Several photos are squares sharing the full row width, edge to
                     // edge; a lone photo keeps the left/center/right stagger. No max
                     // width, so they keep growing on wider screens.
-                    className={`project-image-wrap relative min-w-0 overflow-hidden ${
+                    className={`project-image-wrap group/photo relative block min-w-0 overflow-hidden ${
                       shown.length > 1
                         ? "aspect-square flex-1"
                         : `h-[38vh] ${mobileWidthClasses[align]} sm:w-[70vw] md:h-[60vh] md:w-[62vw] 2xl:h-[66vh]`
@@ -145,9 +148,9 @@ export function ProjectsStack({ projects, locale = "pt" }: { projects: Project[]
                       fill
                       sizes={shown.length > 1 ? `(min-width: 768px) ${Math.round(100 / shown.length)}vw, 90vw` : "(min-width: 768px) 62vw, 90vw"}
                       priority={projectIndex === 0 && i === 0}
-                      className="object-cover"
+                      className="object-cover transition-transform duration-700 ease-out group-hover/photo:scale-[1.03]"
                     />
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>
