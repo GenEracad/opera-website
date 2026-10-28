@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import { moveProjectOrder, toggleFeatured } from "@/app/admin/actions";
+import { moveProjectOrder, setProjectPosition, toggleFeatured } from "@/app/admin/actions";
 import { DeleteProjectButton } from "@/components/admin/delete-project-button";
 import type { Project } from "@/lib/content-store";
 
@@ -66,6 +66,25 @@ export function AllProjectsList({ projects }: { projects: Project[] }) {
                   </form>
                 </div>
               ) : null}
+              {/* Type a position and press Enter (or leave the field) to jump there. */}
+              <form
+                action={setProjectPosition.bind(null, project.id)}
+                title="Posição — escreva o número e carregue Enter"
+              >
+                <input
+                  key={fullIndex}
+                  type="number"
+                  name="position"
+                  min={1}
+                  max={projects.length}
+                  defaultValue={fullIndex + 1}
+                  aria-label={`Posição de ${project.name}`}
+                  onBlur={(e) => {
+                    if (Number(e.currentTarget.value) !== fullIndex + 1) e.currentTarget.form?.requestSubmit();
+                  }}
+                  className="w-12 border-b border-border bg-transparent py-1 text-center font-mono text-xs text-foreground [appearance:textfield] focus:border-foreground/60 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                />
+              </form>
               <div className="relative h-14 w-20 shrink-0 overflow-hidden bg-secondary">
                 <Image
                   src={project.images[0]}

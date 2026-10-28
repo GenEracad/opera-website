@@ -11,6 +11,7 @@ import {
   renameProject,
   nextProjectSortOrder,
   moveProject,
+  moveProjectTo,
 } from "@/lib/content-store";
 import { requireAdmin } from "@/lib/auth";
 import { getSiteContent, saveSiteContent } from "@/lib/site-content";
@@ -118,6 +119,14 @@ export async function moveProjectOrder(id: string, direction: "up" | "down") {
   revalidatePath("/admin");
 }
 
+/** Jumps a project to the position typed in the admin list (1-based). */
+export async function setProjectPosition(id: string, formData: FormData) {
+  await requireAdmin();
+  await moveProjectTo(id, Number(formData.get("position")));
+  revalidatePublicPages();
+  revalidatePath("/admin");
+}
+
 export async function setFeaturedPhotoCount(id: string, count: number) {
   await requireAdmin();
   const projects = await getProjects();
@@ -158,7 +167,14 @@ export async function updateProject(
   target.budgetEstimate = String(formData.get("budgetEstimate") ?? "").trim();
 
   const removeImages = new Set(formData.getAll("removeImage").map(String));
-  const keptImages = target.images.filter((img) => !removeImages.has(img));
+  // The edit form submits the current images in their (possibly reordered)
+  // order; only trust entries that really belong to this project, and keep any
+  // the form didn't mention at the end.
+  const current = new Set(target.images);
+  const ordered = [...new Set(formData.getAll("imageOrder").map(String))].filter((img) => current.has(img));
+  const keptImages = [...ordered, ...target.images.filter((img) => !ordered.includes(img))].filter(
+    (img) => !removeImages.has(img),
+  );
 
   const images = [...keptImages, ...uploadedUrls(formData, "images")];
   if (images.length === 0) {

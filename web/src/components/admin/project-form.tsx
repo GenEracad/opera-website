@@ -30,8 +30,21 @@ export function ProjectForm({
 }) {
   const { submit, uploading, pending, error } = useUploadingAction(action, {});
   const [imagesToRemove, setImagesToRemove] = useState<Set<string>>(new Set());
+  // Current images in display order; dragged or nudged here, saved as
+  // imageOrder. The first one is the project's cover.
+  const [order, setOrder] = useState<string[]>(project?.images ?? []);
+  const [dragging, setDragging] = useState<number | null>(null);
 
   const remainingCount = (project?.images.length ?? 0) - imagesToRemove.size;
+
+  function moveImage(from: number, to: number) {
+    if (to < 0 || to >= order.length || from === to) return;
+    setOrder((prev) => {
+      const next = [...prev];
+      next.splice(to, 0, ...next.splice(from, 1));
+      return next;
+    });
+  }
 
   return (
     <form action={submit} className="grid grid-cols-1 gap-8 sm:grid-cols-2">
@@ -169,24 +182,50 @@ export function ProjectForm({
         </div>
       </div>
 
-      {project && project.images.length > 0 ? (
+      {project && order.length > 0 ? (
         <div className="sm:col-span-2">
           <label className={labelClass}>Imagens atuais</label>
+          {order.map((image) => (
+            <input key={image} type="hidden" name="imageOrder" value={image} />
+          ))}
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-            {project.images.map((image) => {
+            {order.map((image, index) => {
               const marked = imagesToRemove.has(image);
               return (
-                <label key={image} className="group relative block cursor-pointer">
+                <div
+                  key={image}
+                  draggable
+                  onDragStart={(e) => {
+                    setDragging(index);
+                    e.dataTransfer.effectAllowed = "move";
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = "move";
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    if (dragging !== null) moveImage(dragging, index);
+                    setDragging(null);
+                  }}
+                  onDragEnd={() => setDragging(null)}
+                  className={`group relative block cursor-grab active:cursor-grabbing ${dragging === index ? "opacity-40" : ""}`}
+                >
                   <div
                     className={`relative aspect-[4/3] overflow-hidden bg-secondary ${marked ? "opacity-30" : ""}`}
                   >
-                    <Image src={image} alt="" fill sizes="200px" className="object-cover" />
+                    <Image src={image} alt="" fill sizes="200px" className="pointer-events-none object-cover" />
+                    <span className="absolute left-2 top-2 rounded bg-black/60 px-1.5 py-0.5 font-mono text-[10px] text-white">
+                      {index === 0 ? "1 · capa" : index + 1}
+                    </span>
                   </div>
                   <input
                     type="checkbox"
                     name="removeImage"
                     value={image}
-                    className="absolute right-2 top-2 h-4 w-4"
+                    checked={marked}
+                    aria-label={`Remover imagem ${index + 1}`}
+                    className="absolute right-2 top-2 h-4 w-4 cursor-pointer"
                     onChange={(e) => {
                       setImagesToRemove((prev) => {
                         const next = new Set(prev);
@@ -196,15 +235,34 @@ export function ProjectForm({
                       });
                     }}
                   />
-                  <span className="mt-1 block text-center font-mono text-[10px] tracking-widest text-muted-foreground">
-                    {marked ? "remover" : ""}
-                  </span>
-                </label>
+                  <div className="mt-1 flex items-center justify-between font-mono text-[11px] text-muted-foreground">
+                    <button
+                      type="button"
+                      onClick={() => moveImage(index, index - 1)}
+                      disabled={index === 0}
+                      aria-label="Mover para a esquerda"
+                      className="px-1 hover:text-foreground disabled:opacity-30"
+                    >
+                      ←
+                    </button>
+                    <span className="tracking-widest">{marked ? "remover" : ""}</span>
+                    <button
+                      type="button"
+                      onClick={() => moveImage(index, index + 1)}
+                      disabled={index === order.length - 1}
+                      aria-label="Mover para a direita"
+                      className="px-1 hover:text-foreground disabled:opacity-30"
+                    >
+                      →
+                    </button>
+                  </div>
+                </div>
               );
             })}
           </div>
           <p className="mt-2 font-mono text-[11px] text-muted-foreground">
-            Marque a caixa para remover uma imagem ao guardar.
+            Arraste as imagens (ou use ← →) para mudar a ordem; a primeira é a capa. Marque a caixa
+            para remover uma imagem. As alterações ficam gravadas ao guardar.
           </p>
         </div>
       ) : null}

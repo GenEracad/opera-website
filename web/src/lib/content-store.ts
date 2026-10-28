@@ -128,9 +128,24 @@ export async function moveProject(id: string, direction: "up" | "down"): Promise
   // their values would change nothing. Renumber the whole list instead.
   const reordered = [...projects];
   [reordered[idx], reordered[swapWith]] = [reordered[swapWith], reordered[idx]];
-  const ids = reordered.map((p) => p.id);
-  const orders = reordered.map((_, i) => i);
+  await renumberProjects(reordered.map((p) => p.id));
+}
 
+/** Moves a project straight to `position` (1-based) in the list, shifting
+ * the ones in between. */
+export async function moveProjectTo(id: string, position: number): Promise<void> {
+  const projects = await getProjects();
+  const idx = projects.findIndex((p) => p.id === id);
+  if (idx === -1 || !Number.isFinite(position)) return;
+  const target = Math.min(Math.max(1, Math.round(position)), projects.length) - 1;
+  if (target === idx) return;
+  const ids = projects.map((p) => p.id);
+  ids.splice(target, 0, ...ids.splice(idx, 1));
+  await renumberProjects(ids);
+}
+
+async function renumberProjects(ids: string[]): Promise<void> {
+  const orders = ids.map((_, i) => i);
   const sql = getSql();
   await sql`
     UPDATE projects AS t SET sort_order = v.ord
