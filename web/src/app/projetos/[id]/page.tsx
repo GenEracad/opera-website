@@ -23,7 +23,7 @@ export async function generateMetadata({
   if (!project) return {};
   return {
     title: `${project.name} — Opera Studio`,
-    description: project.description || [project.category, project.location].filter(Boolean).join(" · "),
+    description: project.description || [categoryLabel(project.category, "pt"), project.location].filter(Boolean).join(" · "),
   };
 }
 

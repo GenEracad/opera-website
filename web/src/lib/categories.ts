@@ -14,8 +14,15 @@ export const CATEGORY_LABELS_EN: Record<string, string> = {
   "Certificações Energéticas": "Energy Certifications",
 };
 
+/** Shorter Portuguese labels shown on the site; projects keep the stored
+ * category name, so filters and existing data are unaffected. */
+export const CATEGORY_LABELS_PT: Record<string, string> = {
+  "Equipamentos Públicos": "Equipamentos",
+};
+
 export function categoryLabel(category: string, locale: "pt" | "en"): string {
-  if (locale === "pt" || !category) return category;
+  if (!category) return category;
+  if (locale === "pt") return CATEGORY_LABELS_PT[category] ?? category;
   return CATEGORY_LABELS_EN[category] ?? category;
 }
 
