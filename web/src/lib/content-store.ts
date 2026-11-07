@@ -1,4 +1,5 @@
 import { getSql } from "@/lib/db";
+import { resolveImageUrl } from "@/lib/image-url";
 
 export type Project = {
   id: string;
@@ -52,7 +53,7 @@ function fromRow(row: ProjectRow): Project {
     category: row.category,
     description: row.description,
     descriptionEn: row.description_en,
-    images: row.images,
+    images: row.images.map(resolveImageUrl),
     featured: row.featured,
     featuredOrder: row.featured_order,
     featuredPhotoCount: row.featured_photo_count,

@@ -1,4 +1,5 @@
 import { getSql } from "@/lib/db";
+import { resolveImageUrl } from "@/lib/image-url";
 import { slugify } from "@/lib/content-store";
 
 export type TeamMember = {
@@ -29,7 +30,7 @@ function fromRow(row: TeamRow): TeamMember {
     name: row.name,
     role: row.role,
     roleEn: row.role_en,
-    photo: row.photo,
+    photo: resolveImageUrl(row.photo),
     description: row.description,
     descriptionEn: row.description_en,
     sortOrder: row.sort_order,

@@ -1,4 +1,5 @@
 import { getSql } from "@/lib/db";
+import { resolveImageUrl } from "@/lib/image-url";
 
 export type SiteContent = {
   heroAbout: string;
@@ -119,7 +120,14 @@ export async function getSiteContent(): Promise<SiteContent> {
   const rows = (await sql`SELECT data FROM site_content WHERE id = 'default'`) as {
     data: Partial<SiteContent>;
   }[];
-  return { ...DEFAULT_CONTENT, ...(rows[0]?.data ?? {}) };
+  const content = { ...DEFAULT_CONTENT, ...(rows[0]?.data ?? {}) };
+  return {
+    ...content,
+    logoUrl: resolveImageUrl(content.logoUrl),
+    logoUrlLight: resolveImageUrl(content.logoUrlLight),
+    aboutPhotoUrl: resolveImageUrl(content.aboutPhotoUrl),
+    awardImages: content.awardImages.map(resolveImageUrl),
+  };
 }
 
 export async function saveSiteContent(content: SiteContent): Promise<void> {
