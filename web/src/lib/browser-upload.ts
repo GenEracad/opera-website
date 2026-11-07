@@ -1,28 +1,30 @@
 "use client";
 
-import { upload } from "@vercel/blob/client";
 import { startTransition, useActionState, useState } from "react";
+
+import { MAX_UPLOAD_BYTES } from "@/lib/media";
 
 export type UploadFormState = { error?: string };
 
-const MAX_UPLOAD_BYTES = 30 * 1024 * 1024; // keep in sync with /api/blob-upload
 const UPLOAD_ERROR = "Não foi possível enviar a imagem. Tente novamente.";
 const TOO_LARGE_ERROR = "Cada imagem pode ter no máximo 30 MB.";
 
-/** Uploads one image from the browser straight to Vercel Blob and returns
- * its public URL. The token comes from /api/blob-upload (admins only). */
+/** Uploads one image to the site's R2 storage (/api/upload, admins only)
+ * and returns its public URL. */
 export async function uploadImage(file: Blob, name = "image"): Promise<string> {
   const ext = (name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
-  const blob = await upload(`uploads/${crypto.randomUUID()}.${ext}`, file, {
-    access: "public",
-    handleUploadUrl: "/api/blob-upload",
-    contentType: file.type || undefined,
+  const res = await fetch(`/api/upload?ext=${encodeURIComponent(ext)}`, {
+    method: "PUT",
+    body: file,
+    headers: { "content-type": file.type || "image/jpeg" },
   });
-  return blob.url;
+  if (!res.ok) throw new Error(`Upload failed (${res.status}): ${await res.text().catch(() => "")}`);
+  const { url } = (await res.json()) as { url: string };
+  return url;
 }
 
 /** Replaces every File in the form data with the URL of the same image,
- * uploaded to Blob, so server actions only ever receive URLs. */
+ * uploaded to R2, so server actions only ever receive URLs. */
 async function uploadFilesInFormData(formData: FormData): Promise<void> {
   for (const key of new Set(formData.keys())) {
     const values = formData.getAll(key);

@@ -8,6 +8,13 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  // Admin uploads (served publicly at media.operastudio.net).
+  "r2_buckets": [
+    {
+      "binding": "IMAGES_BUCKET",
+      "bucket_name": "opera-images"
+    }
+  ],
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
