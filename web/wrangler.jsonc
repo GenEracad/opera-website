@@ -8,11 +8,11 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
-  // Admin uploads (served publicly at media.operastudio.net).
-  "r2_buckets": [
+  // Admin uploads, served by the site at /media/<key>.
+  "kv_namespaces": [
     {
-      "binding": "IMAGES_BUCKET",
-      "bucket_name": "opera-images"
+      "binding": "IMAGES_KV",
+      "id": "23911b4263fc42ed9b06e5db0ada7d45"
     }
   ],
   "services": [

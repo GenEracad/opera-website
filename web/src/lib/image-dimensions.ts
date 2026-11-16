@@ -2,6 +2,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
+import { MEDIA_PATH } from "@/lib/media";
+import { getMediaKV } from "@/lib/media-store";
+
 const SVG_HEAD_BYTES = 1024;
 
 function readPngSize(buffer: Buffer): { width: number; height: number } | null {
@@ -53,8 +56,15 @@ export async function getImageDimensions(
 }
 
 /** public/ is on disk under `next dev`/`next start`, but on Cloudflare Workers
- * it only exists as static assets, served through the ASSETS binding. */
+ * it only exists as static assets, served through the ASSETS binding. Admin
+ * uploads (/media/...) are read from KV. */
 async function readLocalHead(imagePath: string, bytes: number): Promise<Buffer> {
+  if (imagePath.startsWith(`${MEDIA_PATH}/`)) {
+    const kv = await getMediaKV();
+    const { value } = await kv.getWithMetadata(imagePath.slice(MEDIA_PATH.length + 1), { type: "stream" });
+    if (!value) throw new Error("media file not found");
+    return Buffer.from(await new Response(value).arrayBuffer()).subarray(0, bytes);
+  }
   try {
     const fd = await fs.open(path.join(process.cwd(), "public", imagePath), "r");
     try {

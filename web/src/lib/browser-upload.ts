@@ -7,10 +7,10 @@ import { MAX_UPLOAD_BYTES } from "@/lib/media";
 export type UploadFormState = { error?: string };
 
 const UPLOAD_ERROR = "Não foi possível enviar a imagem. Tente novamente.";
-const TOO_LARGE_ERROR = "Cada imagem pode ter no máximo 30 MB.";
+const TOO_LARGE_ERROR = "Cada imagem pode ter no máximo 25 MB.";
 
-/** Uploads one image to the site's R2 storage (/api/upload, admins only)
- * and returns its public URL. */
+/** Uploads one image to the site's KV storage (/api/upload, admins only)
+ * and returns the path it is served from. */
 export async function uploadImage(file: Blob, name = "image"): Promise<string> {
   const ext = (name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
   const res = await fetch(`/api/upload?ext=${encodeURIComponent(ext)}`, {
@@ -24,7 +24,7 @@ export async function uploadImage(file: Blob, name = "image"): Promise<string> {
 }
 
 /** Replaces every File in the form data with the URL of the same image,
- * uploaded to R2, so server actions only ever receive URLs. */
+ * uploaded to KV, so server actions only ever receive URLs. */
 async function uploadFilesInFormData(formData: FormData): Promise<void> {
   for (const key of new Set(formData.keys())) {
     const values = formData.getAll(key);

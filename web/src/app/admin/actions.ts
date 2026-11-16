@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { MEDIA_BASE_URL } from "@/lib/media";
+import { MEDIA_PATH } from "@/lib/media";
 import { redirect } from "next/navigation";
 
 import {
@@ -27,11 +27,11 @@ import {
 
 export type FormState = { error?: string };
 
-/** Images are uploaded to the site's R2 storage first (src/lib/browser-upload.ts);
+/** Images are uploaded to the site's KV storage first (src/lib/browser-upload.ts);
  * forms then submit only the resulting URLs. Accept nothing but URLs of that
  * storage, so a form can't store arbitrary links. */
 function isStoredImageUrl(value: string): boolean {
-  return value.startsWith(`${MEDIA_BASE_URL}/uploads/`) && !value.includes("..");
+  return value.startsWith(`${MEDIA_PATH}/uploads/`) && !value.includes("..");
 }
 
 function uploadedUrls(formData: FormData, key: string): string[] {
