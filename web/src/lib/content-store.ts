@@ -194,6 +194,51 @@ export async function renameProject(oldId: string, newId: string): Promise<void>
   ]);
 }
 
+/** Re-derives every project's URL slug from its current name; old URLs keep
+ * working through project_redirects. With apply=false only reports what would
+ * change. Slugs are assigned in display order, so earlier projects win the
+ * plain name. */
+export async function syncProjectSlugs(
+  apply: boolean,
+): Promise<{ oldId: string; newId: string; name: string }[]> {
+  const sql = getSql();
+  await sql`CREATE TABLE IF NOT EXISTS project_redirects (old_id text PRIMARY KEY, new_id text NOT NULL)`;
+  const projects = await getProjects();
+
+  const taken = new Set<string>();
+  const changes: { oldId: string; newId: string; name: string }[] = [];
+  for (const project of projects) {
+    const base = slugify(project.name) || "projeto";
+    let newId = base;
+    for (let i = 2; taken.has(newId); i++) newId = `${base}-${i}`;
+    taken.add(newId);
+    if (newId !== project.id) changes.push({ oldId: project.id, newId, name: project.name });
+  }
+  if (!apply || changes.length === 0) return changes;
+
+  // Two phases through temporary ids, so swaps (a→b while b→c) can't collide.
+  // Redirects pointing at an old id are re-pointed the same way. A redirect is
+  // only recorded when the old slug isn't taken by another project's new slug.
+  const tmp = (id: string) => `__renaming__${id}`;
+  const newIds = new Set(changes.map((c) => c.newId));
+  await sql.transaction([
+    ...changes.map((c) => sql`UPDATE projects SET id = ${tmp(c.oldId)} WHERE id = ${c.oldId}`),
+    ...changes.map((c) => sql`UPDATE project_redirects SET new_id = ${tmp(c.oldId)} WHERE new_id = ${c.oldId}`),
+    ...changes.map((c) => sql`UPDATE projects SET id = ${c.newId} WHERE id = ${tmp(c.oldId)}`),
+    ...changes.map((c) => sql`UPDATE project_redirects SET new_id = ${c.newId} WHERE new_id = ${tmp(c.oldId)}`),
+    ...changes.map((c) => sql`DELETE FROM project_redirects WHERE old_id = ${c.newId}`),
+    ...changes
+      .filter((c) => !newIds.has(c.oldId))
+      .map(
+        (c) => sql`
+          INSERT INTO project_redirects (old_id, new_id) VALUES (${c.oldId}, ${c.newId})
+          ON CONFLICT (old_id) DO UPDATE SET new_id = EXCLUDED.new_id
+        `,
+      ),
+  ]);
+  return changes;
+}
+
 /** Where an old project URL slug now lives, if it was renamed. */
 export async function getProjectRedirect(oldId: string): Promise<string | undefined> {
   const sql = getSql();

@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { moveTeamMemberOrder } from "@/app/admin/actions";
 import { DeleteTeamMemberButton } from "@/components/admin/delete-team-member-button";
+import { SyncAddressesButton } from "@/components/admin/sync-addresses-button";
 import { requireAdmin } from "@/lib/auth";
 import { getTeam } from "@/lib/team-store";
 
@@ -32,6 +33,9 @@ export default async function AdminTeamPage() {
         >
           + Adicionar pessoa
         </Link>
+      </div>
+      <div className="-mt-10 mb-12">
+        <SyncAddressesButton />
       </div>
 
       {team.length === 0 ? (

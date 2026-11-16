@@ -96,12 +96,45 @@ export async function moveTeamMember(id: string, direction: "up" | "down"): Prom
   `;
 }
 
-export async function uniqueTeamId(name: string): Promise<string> {
+/** The member's admin URL id, derived from the name. Pass the current id when
+ * renaming so it doesn't collide with itself. */
+export async function uniqueTeamId(name: string, currentId?: string): Promise<string> {
   const base = slugify(name) || "membro";
   const team = await getTeam();
-  const existingIds = new Set(team.map((m) => m.id));
+  const existingIds = new Set(team.map((m) => m.id).filter((id) => id !== currentId));
   if (!existingIds.has(base)) return base;
   let i = 2;
   while (existingIds.has(`${base}-${i}`)) i++;
   return `${base}-${i}`;
+}
+
+/** Changes a member's id. Ids only appear in admin URLs, so no redirect. */
+export async function renameTeamMember(oldId: string, newId: string): Promise<void> {
+  if (oldId === newId) return;
+  const sql = getSql();
+  await sql`UPDATE team SET id = ${newId} WHERE id = ${oldId}`;
+}
+
+/** Re-derives every member's id from their current name (members renamed
+ * after creation kept their old id). Returns how many changed. */
+export async function syncTeamIds(): Promise<number> {
+  const team = await getTeam();
+  const taken = new Set<string>();
+  const changes: { oldId: string; newId: string }[] = [];
+  for (const member of team) {
+    const base = slugify(member.name) || "membro";
+    let newId = base;
+    for (let i = 2; taken.has(newId); i++) newId = `${base}-${i}`;
+    taken.add(newId);
+    if (newId !== member.id) changes.push({ oldId: member.id, newId });
+  }
+  if (changes.length === 0) return 0;
+  // Two phases through temporary ids, so swaps can't collide.
+  const tmp = (id: string) => `__renaming__${id}`;
+  const sql = getSql();
+  await sql.transaction([
+    ...changes.map((c) => sql`UPDATE team SET id = ${tmp(c.oldId)} WHERE id = ${c.oldId}`),
+    ...changes.map((c) => sql`UPDATE team SET id = ${c.newId} WHERE id = ${tmp(c.oldId)}`),
+  ]);
+  return changes.length;
 }

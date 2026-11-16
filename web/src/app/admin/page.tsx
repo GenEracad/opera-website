@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { logout } from "@/app/admin/login/actions";
+import { SyncAddressesButton } from "@/components/admin/sync-addresses-button";
 import { moveFeatured, toggleFeatured } from "@/app/admin/actions";
 import { AllProjectsList } from "@/components/admin/all-projects-list";
 import { PhotoCountSelect } from "@/components/admin/photo-count-select";
@@ -53,6 +54,9 @@ export default async function AdminPage() {
             </button>
           </form>
         </div>
+      </div>
+      <div className="-mt-10 mb-12">
+        <SyncAddressesButton />
       </div>
 
       <section className="mb-16">

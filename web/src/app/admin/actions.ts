@@ -13,6 +13,7 @@ import {
   nextProjectSortOrder,
   moveProject,
   moveProjectTo,
+  syncProjectSlugs,
 } from "@/lib/content-store";
 import { requireAdmin } from "@/lib/auth";
 import { getSiteContent, saveSiteContent } from "@/lib/site-content";
@@ -21,6 +22,8 @@ import {
   saveTeamMember,
   deleteTeamMemberRow,
   uniqueTeamId,
+  renameTeamMember,
+  syncTeamIds,
   nextTeamSortOrder,
   moveTeamMember,
 } from "@/lib/team-store";
@@ -488,8 +491,29 @@ export async function updateTeamMember(
   if (photo) target.photo = photo;
 
   await saveTeamMember(target);
+  // Keep the admin URL id in step with the name.
+  await renameTeamMember(target.id, await uniqueTeamId(target.name, target.id));
   revalidatePublicPages();
   redirect("/admin/equipa");
+}
+
+export type SyncState = { message?: string };
+
+/** One-click fix for project slugs and team ids left over from names that
+ * changed after creation. Old project URLs redirect to the new ones. */
+export async function syncAddresses(): Promise<SyncState> {
+  await requireAdmin();
+  const projects = await syncProjectSlugs(true);
+  const team = await syncTeamIds();
+  revalidatePublicPages();
+  revalidatePath("/admin/equipa");
+  const total = projects.length + team;
+  return {
+    message:
+      total === 0
+        ? "Todos os endereços já correspondem aos nomes."
+        : `Atualizados ${projects.length} projeto(s) e ${team} membro(s) da equipa.`,
+  };
 }
 
 export async function deleteTeamMember(id: string) {
