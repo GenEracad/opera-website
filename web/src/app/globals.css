@@ -107,3 +107,8 @@
     @apply font-light;
   }
 }
+
+/* Project photos are shown 10% less saturated, to tone down the punchier renders. */
+.project-photo {
+  filter: saturate(0.9);
+}

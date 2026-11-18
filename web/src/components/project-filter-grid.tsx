@@ -77,7 +77,7 @@ export function ProjectFilterGrid({ projects, locale = "pt" }: { projects: Proje
                 alt={name}
                 fill
                 sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
+                className="project-photo object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/5 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-5">

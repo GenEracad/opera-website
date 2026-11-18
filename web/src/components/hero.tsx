@@ -27,7 +27,7 @@ export function Hero({
         fill
         priority
         sizes="100vw"
-        className="object-cover"
+        className="project-photo object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/10 to-background/90" />
       {/* The whole photo opens the project; the text above lets clicks through. */}

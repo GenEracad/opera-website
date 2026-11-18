@@ -76,7 +76,7 @@ export function ProjectGallery({
                 alt={alt}
                 fill
                 sizes="100vw"
-                className="object-cover"
+                className="project-photo object-cover"
               />
             </div>
           );
@@ -92,7 +92,7 @@ export function ProjectGallery({
                 alt={alt}
                 fill
                 sizes="(min-width: 768px) 60vw, 100vw"
-                className="object-cover"
+                className="project-photo object-cover"
               />
             </div>
           </div>

@@ -76,7 +76,7 @@ export async function ProjectPage({
               fill
               priority
               sizes="100vw"
-              className="object-cover"
+              className="project-photo object-cover"
             />
           </div>
         ) : null}
@@ -157,7 +157,7 @@ export async function ProjectPage({
                     alt={name}
                     fill
                     sizes="(min-width: 768px) 45vw, 100vw"
-                    className="object-cover"
+                    className="project-photo object-cover"
                   />
                 </div>
               </div>

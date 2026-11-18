@@ -153,7 +153,7 @@ export function ProjectsStack({ projects, locale = "pt" }: { projects: Project[]
                       fill
                       sizes={shown.length > 1 ? `(min-width: 768px) ${Math.round(100 / shown.length)}vw, 90vw` : "(min-width: 768px) 62vw, 90vw"}
                       priority={projectIndex === 0 && i === 0}
-                      className="object-cover transition-transform duration-700 ease-out group-hover/photo:scale-[1.03]"
+                      className="project-photo object-cover transition-transform duration-700 ease-out group-hover/photo:scale-[1.03]"
                     />
                   </Link>
                 ))}
