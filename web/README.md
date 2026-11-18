@@ -133,6 +133,8 @@ The OPERA STUDIO logo (OPE / RA / STU / DIO, Futura PT Book and Light) lives in 
 npx dotenv -e .env.local -- npx tsx scripts/set-logo.ts
 ```
 
+The browser-tab icon (`src/app/icon.svg`) is the same O (Book) and S (Light), cut from the logo's outlines and set as a step: O on top, S below starting where the O ends, white on the site's dark background.
+
 To rebuild the SVGs, run `scripts/make-logo.mjs` with the Book and Light font files (they are only read locally; the SVGs contain outlines, never the font):
 
 ```bash
