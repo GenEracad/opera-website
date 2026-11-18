@@ -48,6 +48,20 @@ export type SiteContent = {
   contactReasonsEn: string[];
 };
 
+const FACTS_PT: SiteContent["sobreFacts"] = [
+  { value: "2023", label: "Criação da empresa" },
+  { value: "30+", label: "Anos de experiência" },
+  { value: "50+", label: "Projetos de arquitetura e engenharia" },
+  { value: "7000+", label: "Certificados energéticos" },
+];
+
+const FACTS_EN: SiteContent["sobreFactsEn"] = [
+  { value: "2023", label: "Company founded" },
+  { value: "30+", label: "Years of experience" },
+  { value: "50+", label: "Architecture and engineering projects" },
+  { value: "7000+", label: "Energy certificates" },
+];
+
 const DEFAULT_CONTENT: SiteContent = {
   heroAbout:
     "Fundado em 2023 sobre trinta anos de prática em engenharia, o Opera projeta e reabilita habitação e infraestruturas públicas em Portugal e na União Europeia.",
@@ -97,13 +111,8 @@ const DEFAULT_CONTENT: SiteContent = {
     "Temos experiência comprovada em projetos de larga escala: Rio 2016 (venues desportivas) e a cidade do Soyo com a Angola LNG (credora de carbono).",
   ].join("\n\n"),
   sobreBodyEn: "",
-  sobreFacts: [
-    { value: "2023", label: "Estúdio fundado" },
-    { value: "30+", label: "Anos de prática combinada" },
-    { value: "BIM Nível 2", label: "ISO 19650 em curso" },
-    { value: "2027", label: "Filial em Riade" },
-  ],
-  sobreFactsEn: [],
+  sobreFacts: FACTS_PT,
+  sobreFactsEn: FACTS_EN,
 
   equipaHeading: "A nossa equipa",
   equipaHeadingEn: "",
@@ -121,6 +130,14 @@ export async function getSiteContent(): Promise<SiteContent> {
     data: Partial<SiteContent>;
   }[];
   const content = { ...DEFAULT_CONTENT, ...(rows[0]?.data ?? {}) };
+  // The stored About numbers still had the original wording; swap them for
+  // the current ones. Once the content form is saved, the new ones are stored.
+  if (content.sobreFacts.some((f) => f.label === "Estúdio fundado")) {
+    content.sobreFacts = FACTS_PT;
+    if (content.sobreFactsEn.length === 0 || content.sobreFactsEn.some((f) => /founded/i.test(f.label))) {
+      content.sobreFactsEn = FACTS_EN;
+    }
+  }
   return {
     ...content,
     logoUrl: resolveImageUrl(content.logoUrl),
