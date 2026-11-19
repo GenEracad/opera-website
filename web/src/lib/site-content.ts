@@ -51,14 +51,14 @@ export type SiteContent = {
 const FACTS_PT: SiteContent["sobreFacts"] = [
   { value: "2023", label: "Criação da empresa" },
   { value: "30+", label: "Anos de experiência" },
-  { value: "50+", label: "Projetos de arquitetura e engenharia" },
+  { value: "100+", label: "Projetos de arquitetura e engenharia" },
   { value: "7000+", label: "Certificados energéticos" },
 ];
 
 const FACTS_EN: SiteContent["sobreFactsEn"] = [
   { value: "2023", label: "Company founded" },
   { value: "30+", label: "Years of experience" },
-  { value: "50+", label: "Architecture and engineering projects" },
+  { value: "100+", label: "Architecture and engineering projects" },
   { value: "7000+", label: "Energy certificates" },
 ];
 
@@ -138,6 +138,13 @@ export async function getSiteContent(): Promise<SiteContent> {
       content.sobreFactsEn = FACTS_EN;
     }
   }
+  // The projects count went from 50+ to 100+; update it if 50+ was already stored.
+  const bump = (f: { value: string; label: string }) =>
+    f.value === "50+" && /^(Projetos de arquitetura e engenharia|Architecture and engineering projects)$/.test(f.label)
+      ? { ...f, value: "100+" }
+      : f;
+  content.sobreFacts = content.sobreFacts.map(bump);
+  content.sobreFactsEn = content.sobreFactsEn.map(bump);
   return {
     ...content,
     logoUrl: resolveImageUrl(content.logoUrl),
